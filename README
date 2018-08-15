@@ -1,0 +1,105 @@
+-----------------------------------------------------------
+Name: Industrial Personnel Classifier System
+Author: Rai Hann
+        Chief Architect
+        Glocol Networks
+Rev:    0.4.1
+Date:   08/15/2018
+-----------------------------------------------------------
+
+Description:
+
+The Industrial Personnel Classifier System reads video frames 
+from a remote video source, identifies human subjects within
+each frame and then classifies the human within one of the
+following categories:
+
+worker              = green safety vest
+supervisor          = orange safety vest
+unauthorized person = no safety vest
+
+Human subject recognition and localization is accomplished using
+an SSD_MobileNet V2 model running in a TensorFlow 1.9 session.
+Vest color classification is accomplished by color segmentation
+of either green or orange pixel masses over a statistical range
+above a specified pixel count threshold within the regions of interest
+containing human subjects.  Color segmentation is performed using
+OpenCV 3.0 .
+
+Setting Up Video Source
+-----------------------
+
+The application requires a video stream accessible via a URL.
+Demonstration of the system can be accomplished using a VLC
+server on a local network.  The VLC server can be created on 
+a computer running Ubuntu with a USB webcam or a laptop with 
+a built-in webcam.  The VLC server software can be installed by:
+
+sudo apt-get install vlc
+
+After installation is complete, the video source may be streamed over
+the local network by entering the command:
+
+vlc v4l2:///dev/video0 input_stream --sout "#transcode{vcodec=mjpg, \
+width=320, height=240}:std{access=http, mux=mpjpeg, dst=0.0.0.0:8080}"
+
+The device '/dev/video0' may require a different device number such 
+as '/dev/video1' etc.
+
+It is important to note the IP address of the VLC server on the local
+network since this address will have to be used in the Personnel Classifier
+application.
+
+Running the Personnel Classifier Application
+--------------------------------------------
+
+In order to run the personnel classifier application a simple edit must
+be made to the source code.  This requirement will be eliminated in the
+next revision of the application where the IP address can be entered 
+on the command line or via a configuration file.
+
+The IP address of the VLC server should be entered on line 208 of the 
+main source file named 'personnel_classifier.py'.
+
+1.) Initiate the video stream on the VLC server.
+
+2.) Verify the iWave q7 board has network connectivity on the local network 
+    by pinging the VLC server host machine.
+
+2.) Start the personnel classifier application on the iWave q7 RZ/G1M 
+    development board by entering the commands:
+
+    cd /home/root/personnel_classifier
+    python personnel_classifier_main.py --num-workers 3
+
+    The number of workers determines the number of parallel TensorFlow
+    sessions that are created as separate processes for object
+    recognition.  It appears that 3 workers is optimum.
+
+Please note that each time the personnel classifier application
+is run, a file named 'outvid.avi' is created.  This file is a video 
+recording of the processed frames and has the same content as the real-time
+processed video displayed on the board during the session.  If you do not
+want to record the video, line 235 in the main source file named
+'personnel_classifier_main.py' may be commented out.
+
+Dependencies
+------------
+
+1.) Glocol Networks e-AI Ready Modified iwg21m-release-bsp with TensorFlow 1.9 Python support
+2.) Green and Orange Safety Vest (or any day-glo green and orange fabric will work)
+3.) VLC Server + webcam on a local network
+
+In order to run the personnel classifier application a special 
+AI-Ready BSP for the iWave q7 RZ/G1M Development Board is required.
+The download instructions for the BSP will be provided by Glocol Networks
+by email request to:  raiford@glocol.net
+
+
+
+
+
+ 
+
+
+
